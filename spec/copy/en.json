@@ -164,7 +164,6 @@
     "location.place.need_within_all": "You need to be at each of these places: {places}.",
     "location.place.need_outside": "You need to be away from {place}.",
     "location.place.need_outside_all": "You need to be away from these places: {places}.",
-    "location.place.estimate_matched": "You appear to be in the right place. Your location is checked again when you send it.",
     "location.place.not_matched_within": "You do not seem to be at {place} yet. Move closer, then try again.",
     "location.place.not_matched_outside": "You seem to be too close to {place}. Move away, then try again.",
     "location.place.not_precise": "Your location is not precise enough to check this place. Move near a window or outside, then try again.",

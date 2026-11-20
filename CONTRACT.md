@@ -102,7 +102,7 @@ A location requirement can do more than record where the applicant is. It can al
 | `confidence` | `strict`, `lenient` | How the fix's `accuracy` counts. `strict` means `distance + accuracy <= radius` (the whole uncertainty circle fits). `lenient` means `distance - accuracy <= radius` (the circles overlap). For `outside`, both are mirrored: `strict` needs `distance - accuracy > radius`, and `lenient` needs `distance + accuracy > radius`. |
 | `on_mismatch` | `reject`, `flag` | `reject` returns `422`. `flag` accepts the submission and stores a review flag. |
 
-Distances are great circle (haversine) distances in metres on the server. Clients may show an estimate, but only the server decides.
+Distances are great circle (haversine) distances in metres, using an Earth radius of 6371008.8 m. A radius of `0` ignores `confidence`: `within` passes when `distance <= accuracy`, and `outside` passes when `distance > accuracy`. Only the server decides; clients never receive the coordinates, so they cannot estimate a match.
 
 **Places for each case.** A profile can define fixed places, for example the company's sites. A case can also bring its own places, for example the applicant's declared address or a delivery address. Pass them as `location_places` (same shape as `places`) when the case is created through `POST /client/verifications` or the dashboard. They replace the profile's places for that case only, and are frozen with the case like every other setting. The coordinates must be given directly; the server does not geocode addresses.
 
