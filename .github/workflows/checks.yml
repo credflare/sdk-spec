@@ -1,0 +1,32 @@
+name: checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Engine, places and generator tests
+        run: npm test
+
+  generate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target: [ts, dart, swift, kotlin]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Generate ${{ matrix.target }}
+        run: node scripts/generate.mjs --target ${{ matrix.target }} --out "$RUNNER_TEMP/spec.${{ matrix.target }}"
+      - name: Check mode accepts fresh output
+        run: node scripts/generate.mjs --target ${{ matrix.target }} --out "$RUNNER_TEMP/spec.${{ matrix.target }}" --check
