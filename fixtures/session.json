@@ -1,0 +1,77 @@
+{
+    "success": true,
+    "message": "Operation successful",
+    "data": {
+        "session_id": "01a1fb33-95e6-71fb-8187-8657edeee2c4",
+        "expires_at": "2026-11-20T23:33:44.000000Z",
+        "status": "pending",
+        "environment": "live",
+        "custom_message": null,
+        "requester": {
+            "name": "Omari Mayert's Workspace",
+            "logo_url": null
+        },
+        "brand": null,
+        "upload_limits": {
+            "max_file_size_bytes": 10485760,
+            "allowed_file_types": [
+                "jpg",
+                "png",
+                "webp",
+                "pdf"
+            ],
+            "max_uploads_per_requirement": 5
+        },
+        "profile": {
+            "name": "SDK example",
+            "form_schema": [
+                {
+                    "key": "full_name",
+                    "label": "Full name",
+                    "type": "text",
+                    "required": true
+                }
+            ],
+            "verification_requirements": [],
+            "document_requirements": [
+                {
+                    "document_type": {
+                        "id": 1,
+                        "name": "SDK test document",
+                        "description": null,
+                        "has_expiration_date": false,
+                        "has_issue_date": false,
+                        "has_document_number": false,
+                        "has_issuing_authority": false,
+                        "has_issuing_country": false,
+                        "has_holder_name": true,
+                        "has_holder_dob": false,
+                        "has_holder_address": false,
+                        "supports_multiple_pages": false,
+                        "two_sided": true,
+                        "capture_method": "upload",
+                        "category": "document",
+                        "is_active": true,
+                        "created_at": "2026-11-20T23:03:44.000000Z",
+                        "updated_at": "2026-11-20T23:03:44.000000Z",
+                        "deleted_at": null
+                    },
+                    "capture_method": "upload",
+                    "group_key": null,
+                    "rule": "all_of",
+                    "min_required": null,
+                    "remaining_required": 1,
+                    "requested_sides": [
+                        "front",
+                        "back"
+                    ]
+                }
+            ]
+        },
+        "capabilities": {
+            "trusted_camera": false,
+            "liveness": "challenge",
+            "deepfake_detection": false
+        }
+    }
+}
