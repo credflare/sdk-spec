@@ -1,0 +1,140 @@
+{
+  "version": 1,
+  "facial_verification": {
+    "gestures": {
+      "type": "set",
+      "of": [
+        "blink",
+        "smile",
+        "turn_left",
+        "turn_right",
+        "nod"
+      ],
+      "min": 1,
+      "default": [
+        "blink",
+        "smile",
+        "turn_left",
+        "turn_right",
+        "nod"
+      ]
+    },
+    "gesture_count": {
+      "type": "int",
+      "min": 1,
+      "max": 5,
+      "default": 3
+    },
+    "record_video": {
+      "type": "bool",
+      "default": true
+    },
+    "video_retention_days": {
+      "type": "int",
+      "min": 1,
+      "max": 365,
+      "default": 30
+    }
+  },
+  "location_verification": {
+    "max_accuracy_m": {
+      "type": "int",
+      "min": 5,
+      "max": 5000,
+      "default": 100
+    },
+    "max_age_s": {
+      "type": "int",
+      "min": 5,
+      "max": 3600,
+      "default": 60
+    },
+    "mock_location": {
+      "type": "enum",
+      "of": [
+        "reject",
+        "flag",
+        "allow"
+      ],
+      "default": "reject"
+    },
+    "ip_country": {
+      "type": "enum",
+      "of": [
+        "reject",
+        "flag",
+        "off"
+      ],
+      "default": "flag"
+    },
+    "reference": {
+      "type": "object",
+      "optional": true,
+      "default": null,
+      "fields": {
+        "places": {
+          "type": "list",
+          "min": 1,
+          "max": 50,
+          "item": {
+            "id": {
+              "type": "string",
+              "max": 64
+            },
+            "label": {
+              "type": "string",
+              "max": 120
+            },
+            "latitude": {
+              "type": "number",
+              "min": -90,
+              "max": 90
+            },
+            "longitude": {
+              "type": "number",
+              "min": -180,
+              "max": 180
+            },
+            "radius_m": {
+              "type": "int",
+              "min": 0,
+              "max": 100000
+            }
+          }
+        },
+        "rule": {
+          "type": "enum",
+          "of": [
+            "within",
+            "outside"
+          ],
+          "default": "within"
+        },
+        "match": {
+          "type": "enum",
+          "of": [
+            "any",
+            "all"
+          ],
+          "default": "any"
+        },
+        "confidence": {
+          "type": "enum",
+          "of": [
+            "strict",
+            "lenient"
+          ],
+          "default": "strict"
+        },
+        "on_mismatch": {
+          "type": "enum",
+          "of": [
+            "reject",
+            "flag"
+          ],
+          "default": "reject"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "challenge_ttl_s": 120,
+  "gesture_timeout_ms": 10000,
+  "sample_interval_ms": 66,
+  "video": { "max_seconds": 8, "max_height": 480 },
+  "position": { "face_area_min": 0.15, "face_area_max": 0.65, "center_tolerance": 0.2, "faces": 1 },
+  "face_lost_reset_ms": 1000,
+  "thresholds": {
+    "default": {
+      "eye_open_baseline": 0.6, "eye_closed": 0.3, "eye_reopened": 0.5,
+      "smile": 0.6, "smile_hold_frames": 5,
+      "turn": 20, "nod": 15, "return": 10
+    },
+    "mediapipe": { "smile": 0.4 },
+    "mlkit": { "smile": 0.7 },
+    "vision": {}
+  },
+  "gestures": {
+    "blink": [
+      { "signal": "eye_open", "op": "gt", "value": "eye_open_baseline" },
+      { "signal": "eye_open", "op": "lt", "value": "eye_closed" },
+      { "signal": "eye_open", "op": "gt", "value": "eye_reopened" }
+    ],
+    "smile": [
+      { "signal": "smile", "op": "gt", "value": "smile", "hold_frames": "smile_hold_frames" }
+    ],
+    "turn_left": [
+      { "signal": "yaw", "op": "gt", "value": "turn" },
+      { "signal": "yaw", "op": "abs_lt", "value": "return" }
+    ],
+    "turn_right": [
+      { "signal": "yaw", "op": "lt_neg", "value": "turn" },
+      { "signal": "yaw", "op": "abs_lt", "value": "return" }
+    ],
+    "nod": [
+      { "signal": "pitch", "op": "lt_neg", "value": "nod" },
+      { "signal": "pitch", "op": "abs_lt", "value": "return" }
+    ]
+  }
+}
