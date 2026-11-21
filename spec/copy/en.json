@@ -158,6 +158,8 @@
     "location.timeout": "We could not find your location in time. Try again.",
     "location.low_accuracy": "Your location is not accurate enough yet. Move near a window or outside, then try again.",
     "location.mock_detected": "An app or setting is changing your device location. Turn it off, then try again.",
+    "location.stale": "Your location reading is out of date. Try again to take a new one.",
+    "location.ip_country_mismatch": "Your internet connection seems to be in a different country from your location. Turn off any VPN or proxy, then try again.",
     "location.retry": "Try again",
     "location.retries_exhausted": "We could not get your location. Contact {verifier}.",
     "location.place.title_within": "Share your location at {place}",
