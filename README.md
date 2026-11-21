@@ -9,6 +9,7 @@ The single source of truth for how the Credflare applicant SDKs and the web appl
 | `spec/liveness.json` | Gesture rules, thresholds per face provider, timing and position limits |
 | `spec/location.json` | Location timing and retry limits |
 | `spec/settings.json` | Requirement settings schema with defaults |
+| `spec/errors.json` | Stable codes for capture rejections, with their meaning |
 | `spec/copy/en.json` | Every applicant facing string, keyed by dotted group |
 | `spec/tokens.json` | Light and dark palettes, type scale, spacing, radius, sizes |
 | `icons/` | 24 by 24 stroke icons and a 64 by 64 receipt illustration |

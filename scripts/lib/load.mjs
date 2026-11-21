@@ -86,6 +86,20 @@ function validateSpec(spec) {
   return problems;
 }
 
+const ERROR_CODE = /^(location|liveness)\.[a-z][a-z_]*$/;
+
+export function validateErrors(errors) {
+  const problems = [];
+  const codes = Object.entries(errors?.codes ?? {});
+  if (!codes.length) problems.push('errors has no codes');
+  for (const [code, meaning] of codes) {
+    if (!ERROR_CODE.test(code)) problems.push(`errors ${code}: code must be location.* or liveness.* in snake_case`);
+    if (typeof meaning !== 'string' || !meaning.trim()) problems.push(`errors ${code}: meaning must be a non empty string`);
+    else if (/[–—]| - |--/.test(meaning)) problems.push(`errors ${code}: meaning contains a dash used as punctuation`);
+  }
+  return problems;
+}
+
 const ATTR = /([a-zA-Z-]+)="([^"]*)"/g;
 const attrs = (s) => Object.fromEntries([...s.matchAll(ATTR)].map((m) => [m[1], m[2]]));
 
@@ -134,6 +148,7 @@ export function loadSpec(root) {
   const location = json('spec/location.json');
   const settings = json('spec/settings.json');
   const tokens = json('spec/tokens.json');
+  const errors = json('spec/errors.json');
   const copy = {};
   for (const file of readdirSync(join(root, 'spec/copy')).filter((f) => f.endsWith('.json')).sort()) {
     const data = json(`spec/copy/${file}`);
@@ -148,9 +163,10 @@ export function loadSpec(root) {
     inputs.push([`icons/${file}`, text]);
     icons[name] = parseIcon(name, text);
   }
-  const spec = { version: pkg.version, liveness, location, settings, tokens, copy, icons };
+  const spec = { version: pkg.version, liveness, location, settings, tokens, errors, copy, icons };
   const problems = [
     ...validateSpec(spec),
+    ...validateErrors(errors),
     ...Object.values(copy).flatMap((c) => validateCopy(c, copy.en).map((p) => `spec/copy/${c.locale}.json ${p}`)),
   ];
   if (problems.length) throw new Error(`Spec is invalid:\n  ${problems.join('\n  ')}`);

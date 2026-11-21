@@ -5,7 +5,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ROOT, TARGETS, generate } from './generate.mjs';
-import { validateCopy } from './lib/load.mjs';
+import { validateCopy, validateErrors } from './lib/load.mjs';
 import { normalizePath, serializePath } from './lib/path.mjs';
 
 const cli = join(ROOT, 'scripts/generate.mjs');
@@ -42,6 +42,30 @@ test('copy validation rejects banned wording and unknown placeholders', () => {
   assert.match(problems, /receipt.body: contains en or em dash/);
   assert.match(problems, /unknown placeholder \{name\}/);
   assert.match(problems, /Bad.Key: key must be dotted snake_case/);
+});
+
+test('every target exposes every rejection code', () => {
+  const { codes } = JSON.parse(readFileSync(join(ROOT, 'spec/errors.json'), 'utf8'));
+  for (const target of TARGETS) {
+    const output = generate(target);
+    for (const code of Object.keys(codes)) assert.ok(output.includes(`"${code}"`) || output.includes(`'${code}'`), `${target} is missing ${code}`);
+  }
+});
+
+test('CONTRACT.md lists exactly the rejection codes in spec/errors.json', () => {
+  const { codes } = JSON.parse(readFileSync(join(ROOT, 'spec/errors.json'), 'utf8'));
+  const section = readFileSync(join(ROOT, 'CONTRACT.md'), 'utf8').split('## Rejection codes')[1].split('\n## ')[0];
+  const listed = [...section.matchAll(/^\| `((?:location|liveness)\.[a-z_]+)` \|/gm)].map((m) => m[1]);
+  assert.deepEqual(listed, Object.keys(codes));
+});
+
+test('error validation rejects malformed codes and meanings', () => {
+  const problems = validateErrors({ codes: { 'Location.Bad': 'x', 'document.blurry': 'Blurry', 'liveness.ok': '', 'liveness.dash': 'Too long -- retry' } }).join('\n');
+  assert.match(problems, /Location.Bad: code must be/);
+  assert.match(problems, /document.blurry: code must be/);
+  assert.match(problems, /liveness.ok: meaning must be a non empty string/);
+  assert.match(problems, /liveness.dash: meaning contains a dash/);
+  assert.match(validateErrors({ codes: {} }).join(), /no codes/);
 });
 
 test('icon paths normalize to absolute M L C Z', () => {

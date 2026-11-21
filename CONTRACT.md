@@ -105,6 +105,8 @@ Every `422` from a capture rule carries a stable `code` at the top level of the 
 | `liveness.video_too_long` | The video is longer than `max_video_seconds` plus one second |
 | `liveness.video_unreadable` | The server cannot read the video duration |
 
+The codes are defined in `spec/errors.json` and generated into every SDK; this table must list the same codes in the same order (`npm test` checks it).
+
 ## Reference places
 
 A location requirement can do more than record where the applicant is. It can also check that the applicant is at, near, or away from known places.

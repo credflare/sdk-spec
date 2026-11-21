@@ -200,6 +200,18 @@ export function buildModel(spec) {
     value: struct('SpecTextStyle', { size: dbl(t.size), lineHeight: dbl(t.line_height), weight: int(t.weight) }),
   }));
   const paletteValue = (mode) => struct('SpecPalette', Object.fromEntries(Object.entries(tokens.color[mode]).map(([k, v]) => [camel(k), colorValue(v)])));
+  const errorsNs = {
+    name: 'error_code',
+    members: [
+      ...Object.keys(spec.errors.codes).map((code) => ({ name: code.replace(/\./g, '_'), type: 'String', value: str(code) })),
+      {
+        name: 'meanings',
+        type: { map: ['String', 'String'] },
+        value: map('String', 'String', Object.entries(spec.errors.codes).map(([code, meaning]) => [str(code), str(meaning)])),
+      },
+    ],
+  };
+
   const tokensNs = {
     name: 'tokens',
     members: [
@@ -264,6 +276,7 @@ export function buildModel(spec) {
       },
       copyNs,
       copyKeyNs,
+      errorsNs,
       tokensNs,
       iconsNs,
     ],
