@@ -80,6 +80,31 @@ The server enforces each setting:
 | `mock_location` | `reject` returns `422` when `is_mock` is true; `flag` stores a review flag; `allow` ignores it. A client that cannot detect mock locations sends `is_mock: null`, which is never treated as a mock. |
 | `ip_country` | Compares the country of the request IP with the country of the coordinates, using a local GeoLite2 database. `reject` returns `422` on a mismatch; `flag` stores a review flag; `off` skips the check. Without the database the result is stored as `not_checked`. |
 
+## Rejection codes
+
+Every `422` from a capture rule carries a stable `code` at the top level of the error body, next to `message` and `errors`. Clients match on `code` and show their own copy; `message` is for people and may change. Other validation errors have no `code`.
+
+```json
+{ "success": false, "message": "The location fix is too old. Share your current location again.", "errors": [], "code": "location.stale" }
+```
+
+| Code | When |
+| --- | --- |
+| `location.accuracy` | `accuracy` is missing or larger than `max_accuracy_m` |
+| `location.stale` | `fix_time` is missing, older than `max_age_s` plus `clock_skew_s`, or in the future |
+| `location.mock` | `is_mock` is true and `mock_location` is `reject` |
+| `location.ip_country` | The IP country does not match and `ip_country` is `reject` |
+| `location.reference_not_matched` | The place rule failed and `on_mismatch` is `reject` |
+| `liveness.challenge_invalid` | The challenge is unknown, belongs to another case or was replaced |
+| `liveness.challenge_expired` | The challenge expired |
+| `liveness.challenge_used` | The challenge was already used |
+| `liveness.gesture_mismatch` | A gesture frame is missing, extra, out of order or for a gesture the challenge does not include |
+| `liveness.frame_out_of_window` | A file was uploaded before the challenge was issued or after it expired |
+| `liveness.not_camera` | Evidence was not uploaded with `capture_source=camera` for this challenge |
+| `liveness.video_missing` | `record_video` is on and no video for this challenge was sent |
+| `liveness.video_too_long` | The video is longer than `max_video_seconds` plus one second |
+| `liveness.video_unreadable` | The server cannot read the video duration |
+
 ## Reference places
 
 A location requirement can do more than record where the applicant is. It can also check that the applicant is at, near, or away from known places.
