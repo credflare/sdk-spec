@@ -78,7 +78,7 @@ The server enforces each setting:
 | `max_accuracy_m` | Rejects when `accuracy` is missing or larger than the limit |
 | `max_age_s` | Rejects when `fix_time` is older than this compared with the server clock (with `spec/location.json` `clock_skew_s` allowed) |
 | `mock_location` | `reject` returns `422` when `is_mock` is true; `flag` stores a review flag; `allow` ignores it. A client that cannot detect mock locations sends `is_mock: null`, which is never treated as a mock. |
-| `ip_country` | Compares the country of the request IP with the country of the coordinates, using a local GeoLite2 database. `reject` returns `422` on a mismatch; `flag` stores a review flag; `off` skips the check. Without the database the result is stored as `not_checked`. |
+| `ip_country` | Compares the country of the request IP with the country of the coordinates, using local copies of the DB-IP IP to Country Lite database and the Natural Earth country boundaries. `reject` returns `422` on a mismatch; `flag` stores a review flag; `off` skips the check. The result is stored as `not_checked` with a reason when the datasets are missing, the IP is private or CGNAT, the point is at sea, or the point is within 10 km of another country and the IP country is one of those countries. |
 
 ## Rejection codes
 
