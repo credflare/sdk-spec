@@ -111,7 +111,7 @@ Distances are great circle (haversine) distances in metres, using an Earth radiu
 - the nearest place's `id` and `distance_m`
 - the `accuracy` used
 
-**Applicant view.** The applicant never sees the reference coordinates. `verification_requirements[].settings.reference` in public and session responses only includes `rule` and the place labels, so the app can say "Share your location at Head office".
+**Applicant view.** The applicant never sees the reference coordinates. `verification_requirements[].settings.reference` in public and session responses only includes `rule`, `match` and the place labels, so the app can say "Share your location at Head office".
 
 ## Face signals
 
