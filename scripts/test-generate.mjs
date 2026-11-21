@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ROOT, TARGETS, generate } from './generate.mjs';
@@ -57,6 +57,18 @@ test('CONTRACT.md lists exactly the rejection codes in spec/errors.json', () => 
   const section = readFileSync(join(ROOT, 'CONTRACT.md'), 'utf8').split('## Rejection codes')[1].split('\n## ')[0];
   const listed = [...section.matchAll(/^\| `((?:location|liveness)\.[a-z_]+)` \|/gm)].map((m) => m[1]);
   assert.deepEqual(listed, Object.keys(codes));
+});
+
+test('every rejection code has exactly one real backend 422 fixture', () => {
+  const { codes } = JSON.parse(readFileSync(join(ROOT, 'spec/errors.json'), 'utf8'));
+  const dir = join(ROOT, 'fixtures/rejections');
+  assert.deepEqual(readdirSync(dir).filter((f) => f.endsWith('.json')).sort(), Object.keys(codes).map((c) => `${c}.json`).sort());
+  for (const code of Object.keys(codes)) {
+    const body = JSON.parse(readFileSync(join(dir, `${code}.json`), 'utf8'));
+    assert.equal(body.code, code);
+    assert.equal(body.success, false);
+    assert.equal(typeof body.message, 'string');
+  }
 });
 
 test('error validation rejects malformed codes and meanings', () => {

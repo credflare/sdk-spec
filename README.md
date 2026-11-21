@@ -14,6 +14,7 @@ The single source of truth for how the Credflare applicant SDKs and the web appl
 | `spec/tokens.json` | Light and dark palettes, type scale, spacing, radius, sizes |
 | `icons/` | 24 by 24 stroke icons and a 64 by 64 receipt illustration |
 | `fixtures/liveness-traces/` | Synthetic face sample traces with expected outcomes |
+| `fixtures/rejections/` | One backend `422` per rejection code, named `<code>.json` |
 | `fixtures/` (other files) | Backend response fixtures |
 | `scripts/` | Generator, reference engine, reference place check and tests |
 

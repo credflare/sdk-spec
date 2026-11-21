@@ -1,0 +1,6 @@
+{
+    "success": false,
+    "message": "Gesture frames must match the challenge gestures in order.",
+    "errors": [],
+    "code": "liveness.frame_out_of_window"
+}
