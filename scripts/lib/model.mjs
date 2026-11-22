@@ -66,6 +66,17 @@ export const structs = [
     ],
   },
   {
+    name: 'SpecRejectionCopy',
+    doc: 'Applicant copy for a rejection code. Every text field is a copy key. The place messages replace message when the location requirement has reference places.',
+    fields: [
+      ['title', 'String'],
+      ['message', 'String'],
+      ['action', 'String'],
+      ['placeMessageWithin', { opt: 'String' }],
+      ['placeMessageOutside', { opt: 'String' }],
+    ],
+  },
+  {
     name: 'SpecPalette',
     fields: [],
   },
@@ -212,6 +223,32 @@ export function buildModel(spec) {
     ],
   };
 
+  const opt = (v) => (v === undefined ? { k: 'null' } : str(v));
+  const rejectionsNs = {
+    name: 'rejection',
+    members: [
+      { name: 'requested_by', type: 'String', value: str(spec.rejections.requested_by) },
+      { name: 'help', type: 'String', value: str(spec.rejections.help) },
+      { name: 'actions', type: { list: 'String' }, value: list('String', Object.keys(spec.rejections.actions).map(str)) },
+      {
+        name: 'action_labels',
+        type: { map: ['String', 'String'] },
+        value: map('String', 'String', Object.entries(spec.rejections.actions).map(([name, a]) => [str(name), str(a.label)])),
+      },
+      {
+        name: 'codes',
+        type: { map: ['String', { struct: 'SpecRejectionCopy' }] },
+        value: map('String', { struct: 'SpecRejectionCopy' }, Object.entries(spec.rejections.codes).map(([code, r]) => [str(code), struct('SpecRejectionCopy', {
+          title: str(r.title),
+          message: str(r.message),
+          action: str(r.action),
+          placeMessageWithin: opt(r.place_message_within),
+          placeMessageOutside: opt(r.place_message_outside),
+        })])),
+      },
+    ],
+  };
+
   const tokensNs = {
     name: 'tokens',
     members: [
@@ -277,6 +314,8 @@ export function buildModel(spec) {
       copyNs,
       copyKeyNs,
       errorsNs,
+      rejectionsNs,
+      { name: 'requirements', members: flatten(spec.requirements) },
       tokensNs,
       iconsNs,
     ],

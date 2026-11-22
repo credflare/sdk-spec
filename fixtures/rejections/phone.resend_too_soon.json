@@ -1,0 +1,6 @@
+{
+    "success": false,
+    "message": "Wait a minute before asking for another code.",
+    "errors": [],
+    "code": "phone.resend_too_soon"
+}

@@ -1,0 +1,177 @@
+{
+  "version": 1,
+  "requested_by": "rejection.requested_by",
+  "help": "rejection.help",
+  "actions": {
+    "retry": {
+      "label": "rejection.action.retry",
+      "meaning": "Stay on the step and capture again with the same settings"
+    },
+    "restart": {
+      "label": "rejection.action.restart",
+      "meaning": "Start the step from the beginning, which asks the server for a new challenge"
+    },
+    "reenter_code": {
+      "label": "rejection.action.reenter_code",
+      "meaning": "Clear the code field and let the applicant type the code again"
+    },
+    "new_code": {
+      "label": "rejection.action.new_code",
+      "meaning": "Request a new code for the same email address or phone number"
+    },
+    "wait": {
+      "label": "rejection.action.wait",
+      "meaning": "Keep the code screen and enable sending a new code at resend_available_at from the last code request"
+    },
+    "leave": {
+      "label": "rejection.action.leave",
+      "meaning": "Nothing can be done in the app now; show the help line and let the applicant leave"
+    }
+  },
+  "codes": {
+    "location.accuracy": {
+      "title": "rejection.location_accuracy.title",
+      "message": "location.low_accuracy",
+      "action": "retry",
+      "place_message_within": "location.place.not_precise",
+      "place_message_outside": "location.place.not_precise"
+    },
+    "location.stale": {
+      "title": "rejection.location_stale.title",
+      "message": "location.stale",
+      "action": "retry"
+    },
+    "location.mock": {
+      "title": "rejection.location_mock.title",
+      "message": "location.mock_detected",
+      "action": "retry"
+    },
+    "location.ip_country": {
+      "title": "rejection.location_ip_country.title",
+      "message": "location.ip_country_mismatch",
+      "action": "retry"
+    },
+    "location.reference_not_matched": {
+      "title": "rejection.location_reference.title",
+      "message": "location.place.rejected",
+      "action": "retry",
+      "place_message_within": "location.place.not_matched_within",
+      "place_message_outside": "location.place.not_matched_outside"
+    },
+    "liveness.challenge_invalid": {
+      "title": "rejection.liveness_restart.title",
+      "message": "rejection.liveness_restart.message",
+      "action": "restart"
+    },
+    "liveness.challenge_expired": {
+      "title": "rejection.liveness_expired.title",
+      "message": "liveness.expired",
+      "action": "restart"
+    },
+    "liveness.challenge_used": {
+      "title": "rejection.liveness_restart.title",
+      "message": "rejection.liveness_restart.message",
+      "action": "restart"
+    },
+    "liveness.gesture_mismatch": {
+      "title": "rejection.gesture_mismatch.title",
+      "message": "rejection.gesture_mismatch.message",
+      "action": "restart"
+    },
+    "liveness.frame_out_of_window": {
+      "title": "rejection.liveness_expired.title",
+      "message": "liveness.expired",
+      "action": "restart"
+    },
+    "liveness.not_camera": {
+      "title": "rejection.not_camera.title",
+      "message": "rejection.not_camera.message",
+      "action": "restart"
+    },
+    "liveness.video_missing": {
+      "title": "rejection.video_missing.title",
+      "message": "rejection.video_missing.message",
+      "action": "restart"
+    },
+    "liveness.video_too_long": {
+      "title": "rejection.video_too_long.title",
+      "message": "rejection.video_too_long.message",
+      "action": "restart"
+    },
+    "liveness.video_unreadable": {
+      "title": "rejection.video_unreadable.title",
+      "message": "rejection.video_unreadable.message",
+      "action": "restart"
+    },
+    "email.not_configured": {
+      "title": "rejection.email_not_configured.title",
+      "message": "rejection.email_not_configured.message",
+      "action": "leave"
+    },
+    "email.resend_too_soon": {
+      "title": "rejection.code_resend_too_soon.title",
+      "message": "rejection.code_resend_too_soon.message",
+      "action": "wait"
+    },
+    "email.send_limit": {
+      "title": "rejection.code_send_limit.title",
+      "message": "rejection.code_send_limit.message",
+      "action": "leave"
+    },
+    "email.code_missing": {
+      "title": "rejection.code_missing.title",
+      "message": "rejection.code_missing.message",
+      "action": "new_code"
+    },
+    "email.code_expired": {
+      "title": "rejection.code_expired.title",
+      "message": "rejection.code_expired.message",
+      "action": "new_code"
+    },
+    "email.code_invalid": {
+      "title": "rejection.code_invalid.title",
+      "message": "rejection.code_invalid.message",
+      "action": "reenter_code"
+    },
+    "email.too_many_attempts": {
+      "title": "rejection.code_too_many_attempts.title",
+      "message": "rejection.code_too_many_attempts.message",
+      "action": "new_code"
+    },
+    "phone.not_configured": {
+      "title": "rejection.phone_not_configured.title",
+      "message": "rejection.phone_not_configured.message",
+      "action": "leave"
+    },
+    "phone.resend_too_soon": {
+      "title": "rejection.code_resend_too_soon.title",
+      "message": "rejection.code_resend_too_soon.message",
+      "action": "wait"
+    },
+    "phone.send_limit": {
+      "title": "rejection.code_send_limit.title",
+      "message": "rejection.code_send_limit.message",
+      "action": "leave"
+    },
+    "phone.code_missing": {
+      "title": "rejection.code_missing.title",
+      "message": "rejection.code_missing.message",
+      "action": "new_code"
+    },
+    "phone.code_expired": {
+      "title": "rejection.code_expired.title",
+      "message": "rejection.code_expired.message",
+      "action": "new_code"
+    },
+    "phone.code_invalid": {
+      "title": "rejection.code_invalid.title",
+      "message": "rejection.code_invalid.message",
+      "action": "reenter_code"
+    },
+    "phone.too_many_attempts": {
+      "title": "rejection.code_too_many_attempts.title",
+      "message": "rejection.code_too_many_attempts.message",
+      "action": "new_code"
+    }
+  }
+}

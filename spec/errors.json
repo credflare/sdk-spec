@@ -14,6 +14,20 @@
     "liveness.not_camera": "Evidence was not uploaded with capture_source=camera for this challenge",
     "liveness.video_missing": "record_video is on and no video for this challenge was sent",
     "liveness.video_too_long": "The video is longer than max_video_seconds plus one second",
-    "liveness.video_unreadable": "The server cannot read the video duration"
+    "liveness.video_unreadable": "The server cannot read the video duration",
+    "email.not_configured": "No email sender serves this environment, for example the log driver on a live case",
+    "email.resend_too_soon": "A code was sent to this email address less than 60 seconds ago",
+    "email.send_limit": "Five codes were sent for this case within 24 hours",
+    "email.code_missing": "No unused code was requested for this case",
+    "email.code_expired": "The code is older than 10 minutes",
+    "email.code_invalid": "The code does not match",
+    "email.too_many_attempts": "Five wrong codes were entered; a new code is needed",
+    "phone.not_configured": "No SMS sender serves this environment, for example the log driver on a live case",
+    "phone.resend_too_soon": "A code was sent to this phone number less than 60 seconds ago",
+    "phone.send_limit": "Five codes were sent for this case within 24 hours",
+    "phone.code_missing": "No unused code was requested for this case",
+    "phone.code_expired": "The code is older than 10 minutes",
+    "phone.code_invalid": "The code does not match",
+    "phone.too_many_attempts": "Five wrong codes were entered; a new code is needed"
   }
 }

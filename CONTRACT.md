@@ -6,6 +6,8 @@ This is the shared definition that the backend, the web applicant page and all f
 
 `profile.verification_requirements[]` in the public and session responses carries `settings`. The backend fills in any setting the profile leaves out using the defaults in `spec/settings.json`, so clients always receive complete settings.
 
+Email and phone requirements carry `"settings": null`.
+
 ```json
 { "verification_type": "facial_verification",
   "settings": { "gestures": ["blink", "smile", "turn_left", "turn_right", "nod"], "gesture_count": 3,
@@ -82,7 +84,7 @@ The server enforces each setting:
 
 ## Rejection codes
 
-Every `422` from a capture rule carries a stable `code` at the top level of the error body, next to `message` and `errors`. Clients match on `code` and show their own copy; `message` is for people and may change. Other validation errors have no `code`.
+Every `422` from a capture rule carries a stable `code` at the top level of the error body, next to `message` and `errors`. Clients match on `code` and show the copy from `spec/rejections.json` (see Rejection screens); `message` is for people and may change. Other validation errors have no `code`.
 
 ```json
 { "success": false, "message": "The location fix is too old. Share your current location again.", "errors": [], "code": "location.stale" }
@@ -104,8 +106,133 @@ Every `422` from a capture rule carries a stable `code` at the top level of the 
 | `liveness.video_missing` | `record_video` is on and no video for this challenge was sent |
 | `liveness.video_too_long` | The video is longer than `max_video_seconds` plus one second |
 | `liveness.video_unreadable` | The server cannot read the video duration |
+| `email.not_configured` | No email sender serves this environment |
+| `email.resend_too_soon` | A code was sent to this case less than `resend_seconds` ago |
+| `email.send_limit` | `max_sends` codes were sent for this case within `send_window_hours` |
+| `email.code_missing` | No unused code was requested for this case |
+| `email.code_expired` | The code is older than `ttl_minutes` |
+| `email.code_invalid` | The code does not match |
+| `email.too_many_attempts` | `max_attempts` wrong codes were entered; a new code is needed |
+| `phone.not_configured` | No SMS sender serves this environment |
+| `phone.resend_too_soon` | A code was sent to this case less than `resend_seconds` ago |
+| `phone.send_limit` | `max_sends` codes were sent for this case within `send_window_hours` |
+| `phone.code_missing` | No unused code was requested for this case |
+| `phone.code_expired` | The code is older than `ttl_minutes` |
+| `phone.code_invalid` | The code does not match |
+| `phone.too_many_attempts` | `max_attempts` wrong codes were entered; a new code is needed |
 
 The codes are defined in `spec/errors.json` and generated into every SDK; this table must list the same codes in the same order (`npm test` checks it).
+
+## Rejection screens
+
+`spec/rejections.json` maps every code to the copy an SDK shows, so no SDK keeps its own map:
+
+```json
+"location.reference_not_matched": { "title": "rejection.location_reference.title", "message": "location.place.rejected",
+                                    "action": "retry",
+                                    "place_message_within": "location.place.not_matched_within",
+                                    "place_message_outside": "location.place.not_matched_outside" }
+```
+
+- `title` and `message` are copy keys. Fill `{verifier}` with `requester.name` from the session, or `common.verifier_fallback` when `requester` is null.
+- `place_message_within` and `place_message_outside` replace `message` when the location requirement has reference places, chosen by `settings.reference.rule`. Fill `{place}` with the place labels joined by a comma and a space.
+- `action` says what the main button does. Its label is `actions.<action>.label`.
+
+| Action | Button does |
+| --- | --- |
+| `retry` | Stays on the step and captures again with the same settings |
+| `restart` | Starts the step from the beginning, which asks for a new challenge |
+| `reenter_code` | Clears the code field so the applicant types the code again |
+| `new_code` | Requests a new code for the same email address or phone number |
+| `wait` | Keeps the code screen and enables sending a new code at `resend_available_at` from the last code request |
+| `leave` | Nothing can be done in the app now; shows the help line and lets the applicant leave |
+
+Every rejection screen also shows who asked for the evidence and where to get help: `rejection.requested_by` and `rejection.help`, both filled with `{verifier}`. The session has no help address or link yet, so the help line names the requester only.
+
+A `422` without a `code`, or with a code the SDK does not know, shows the server `message` with the `retry` action.
+
+## Email and phone confirmation
+
+`email_verification` and `phone_verification` ask the applicant to confirm an address or number with a code. Their `settings` are `null`; the limits are fixed and listed in `spec/requirements.json` under `contact_codes`.
+
+| Step | Session route | Hosted route |
+| --- | --- | --- |
+| Send a code | `POST /sdk/sessions/{session}/{channel}-codes` | `POST /client/verifications/{id}/{channel}-codes` |
+| Confirm it | `POST /sdk/sessions/{session}/{channel}-codes/confirm` | `POST /client/verifications/{id}/{channel}-codes/confirm` |
+
+`channel` is `email` or `phone`. Send `{"email": "..."}` (at most 254 characters) or `{"phone": "..."}`. The server removes spaces, brackets, dots and dashes from a phone number (`phone_strip`), then needs the international format (`phone_pattern`, for example `+237650000001`).
+
+`202` response (`fixtures/email-code-request.json`, `fixtures/phone-code-request.json`):
+
+```json
+{ "data": { "channel": "email", "destination": "J*******@example.test", "expires_at": "ISO-8601",
+            "resend_available_at": "ISO-8601", "sends_remaining": 4 } }
+```
+
+Confirm with `{"code": "123456"}` (`code_length` digits). The `201` response (`fixtures/email-code-confirm.json`) carries the submission `id` and the check output. A malformed address, number or code is an ordinary `422` validation error with `errors.<field>` and no `code`.
+
+- A code expires after `ttl_minutes`. `max_attempts` wrong codes burn it.
+- A new code can be sent `resend_seconds` after the last one, at most `max_sends` within `send_window_hours`. Use `resend_available_at` and `sends_remaining` from the last `202` to drive the resend button.
+- `not_configured` means the requirement cannot be finished in this environment; the SDK shows the rejection screen with the `leave` action.
+
+## Questionnaire
+
+`profile.form_schema` lists the questions still to answer, or is `null`. Each question has `key`, `label`, `type` and `required`, plus `options` for choice types, `min` and `max` for numbers, and an optional `show_if`. `fixtures/questionnaire-session.json` has one of each new type.
+
+| `type` | Answer the client sends |
+| --- | --- |
+| `text`, `textarea` | A string of at most 5000 characters |
+| `number` | A JSON number, or a string matching `number_pattern`, within `min` and `max` |
+| `date` | A real calendar date as `YYYY-MM-DD` |
+| `email` | An email address of at most 254 characters |
+| `phone`, `tel` | A string matching `questions.phone_pattern` after trimming |
+| `select`, `single_select` | One of `options` |
+| `multi_select` | A list of distinct `options` |
+| `country` | An ISO 3166 alpha 2 code in upper case |
+| `consent` | `true` or `false`; a required consent must be `true` |
+| `founders` | `{"includes_applicant": bool, "names": [string]}` |
+
+Submit the answers with `{"type": "form_submission", "fields": {"<key>": value}}` on the session `submit` route. An empty answer (`null`, `""` or `[]`) skips the type check. A required question that is shown and left empty fails with `422`.
+
+### show_if
+
+```json
+"show_if": { "match": "all", "conditions": [ { "path": "form.employment", "op": "equals", "value": "Employed" } ] }
+```
+
+- `match` is `all` (the default) or `any`. There are 1 to 10 conditions.
+- `path` is `form.<key>` of a question asked earlier in the list.
+- A question with no `show_if`, or with no conditions, is always shown.
+- Evaluate against every answer given so far, including answers sent earlier in the case. A hidden question is not required. Do not send an answer for a hidden question: the server rejects it with `422` and `errors.fields.<key>` (`fixtures/questionnaire-hidden-answer.json`).
+
+An answer is **missing** when its key is absent or its value is `null`. Missing answers make every operator false except `is_empty`, which is true. The negated operators are false too: `not_equals`, `not_contains` and `not_in` never match a missing answer.
+
+| `op` | `value` | True when |
+| --- | --- | --- |
+| `equals` | One value | The answer equals `value`. Lists compare item by item in order. When either side is a boolean, both are read as booleans (`true`, `1`, `yes`, `on` and `false`, `0`, `no`, `off`, `""`); other text is neither. Numbers and numeric strings compare as numbers. Anything else compares as text, case sensitive. |
+| `not_equals` | One value | The answer is present and `equals` is false |
+| `gt`, `gte`, `lt`, `lte` | One value | Both sides are numbers or numeric strings, or both are dates (`YYYY-MM-DD` with an optional time and offset, UTC when no offset), and the comparison holds. Anything else is false. |
+| `contains` | One value | For a list answer, an item `equals` the value. For a text answer, the value is a non empty text or number found in it, ignoring case. |
+| `not_contains` | One value | The answer is present and `contains` is false |
+| `in` | A list of up to 100 values | The answer is not a list and `equals` one of them |
+| `not_in` | A list of up to 100 values | The answer is present and `in` is false. A list answer is never `in`, so it is always `not_in`. |
+| `is_empty` | None | The answer is missing, `""` or `[]`. `false` and `0` are not empty. |
+| `is_not_empty` | None | `is_empty` is false |
+| `regex` | A pattern of at most 200 characters | The answer is not a list and the pattern matches part of it, case sensitive, with Unicode on. An invalid pattern is false. |
+| `fuzzy_match` | `{"text": "...", "min_score": 0 to 100}` | Both are lower cased, trimmed and have runs of whitespace collapsed, and their similarity is at least `min_score` (80 when absent). Similarity is twice the length of the common substrings (the longest common run, then recursively the parts on each side of it) divided by the total length, as a percentage, counted in UTF-8 bytes. |
+
+`scripts/conditions.mjs` is the reference evaluator. `fixtures/show-if-cases.json` holds the server's result for each case; every SDK should replay it in its unit tests.
+
+## After a submit
+
+A workflow can add requirements while the case is open, for example a phone check when the applicant answers that they live in Germany. The session `GET` always returns what is still outstanding, so the SDK never decides from its own list.
+
+After every call listed in `refresh.after` (a `submit`, or a code confirmation), the SDK fetches the session again:
+
+1. If `status` is in `refresh.open_statuses` and any list in `refresh.outstanding` is non empty, continue with the next outstanding step.
+2. Otherwise show the receipt.
+
+If the fetch fails, show `errors.refresh_failed` with `common.try_again`; never show the receipt in its place. `fixtures/questionnaire-session.json` and `fixtures/requirement-added-session.json` are the session before and after a form submission that added a phone requirement.
 
 ## Reference places
 
