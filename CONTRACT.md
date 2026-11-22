@@ -147,6 +147,8 @@ The codes are defined in `spec/errors.json` and generated into every SDK; this t
 | `wait` | Keeps the code screen and enables sending a new code at `resend_available_at` from the rejection (or from the last code request when the rejection has none) |
 | `leave` | Nothing can be done in the app now; shows the help line and lets the applicant leave |
 
+When the applicant leaves from a `leave` screen, the flow ends with a host action required result that carries the rejection `code` (for example `phone.not_configured`), never with a cancelled result. The host app uses the code to tell the applicant what to do next, such as confirming the number another way or trying again tomorrow after `send_limit`.
+
 Every rejection screen also shows who asked for the evidence and where to get help. `rejection.requested_by` names the requester. The help line depends on `requester` in the session (`fixtures/help-contact-session.json`):
 
 | Session has | Help line | Fill |
@@ -261,8 +263,13 @@ After every call listed in `refresh.after` (a `submit`, or a code confirmation),
 
 1. If `status` is in `refresh.open_statuses` and any list in `refresh.outstanding` is non empty, continue with the next outstanding step.
 2. Otherwise show the receipt.
+3. If the fetch returns `409`, the case is closed (completed, rejected or expired) and accepts nothing more: show the receipt. The body has no `code` (`fixtures/session-closed.json`):
 
-If the fetch fails, show `errors.refresh_failed` with `common.try_again`; never show the receipt in its place. `fixtures/questionnaire-session.json` and `fixtures/requirement-added-session.json` are the session before and after a form submission that added a phone requirement.
+```json
+{ "success": false, "message": "This verification no longer accepts submissions.", "errors": [] }
+```
+
+If the fetch fails in any other way, show `errors.refresh_failed` with `common.try_again`; never show the receipt in its place. `fixtures/questionnaire-session.json` and `fixtures/requirement-added-session.json` are the session before and after a form submission that added a phone requirement.
 
 ## Reference places
 
