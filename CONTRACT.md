@@ -144,10 +144,18 @@ The codes are defined in `spec/errors.json` and generated into every SDK; this t
 | `restart` | Starts the step from the beginning, which asks for a new challenge |
 | `reenter_code` | Clears the code field so the applicant types the code again |
 | `new_code` | Requests a new code for the same email address or phone number |
-| `wait` | Keeps the code screen and enables sending a new code at `resend_available_at` from the last code request |
+| `wait` | Keeps the code screen and enables sending a new code at `resend_available_at` from the rejection (or from the last code request when the rejection has none) |
 | `leave` | Nothing can be done in the app now; shows the help line and lets the applicant leave |
 
-Every rejection screen also shows who asked for the evidence and where to get help: `rejection.requested_by` and `rejection.help`, both filled with `{verifier}`. The session has no help address or link yet, so the help line names the requester only.
+Every rejection screen also shows who asked for the evidence and where to get help. `rejection.requested_by` names the requester. The help line depends on `requester` in the session (`fixtures/help-contact-session.json`):
+
+| Session has | Help line | Fill |
+| --- | --- | --- |
+| `requester.help_email` | `help_email` (`rejection.help_email`) | `{verifier}`, and `{help_email}` as a `mailto:` link |
+| only `requester.help_url` | `help_url` (`rejection.help_url`) | `{help_url}` as a link that opens outside the flow |
+| neither, or `requester` is null | `help` (`rejection.help`) | `{verifier}` |
+
+`help_email` and `help_url` are always present on `requester` and are null when the requester stored no contact. `help_url` is always an `http` or `https` URL.
 
 A `422` without a `code`, or with a code the SDK does not know, shows the server `message` with the `retry` action.
 
@@ -174,6 +182,28 @@ Confirm with `{"code": "123456"}` (`code_length` digits). The `201` response (`f
 - A code expires after `ttl_minutes`. `max_attempts` wrong codes burn it.
 - A new code can be sent `resend_seconds` after the last one, at most `max_sends` within `send_window_hours`. Use `resend_available_at` and `sends_remaining` from the last `202` to drive the resend button.
 - `not_configured` means the requirement cannot be finished in this environment; the SDK shows the rejection screen with the `leave` action.
+- A `resend_too_soon` rejection carries `resend_available_at` next to `code` (`fixtures/rejections/email.resend_too_soon.json`). Count down to it before enabling the resend button again.
+
+## Continue on a phone
+
+The JS SDK and the hosted web page can offer `handoff.action` so the applicant finishes on a phone. Other SDKs do not offer it.
+
+| Step | Session route | Hosted route |
+| --- | --- | --- |
+| Create a link | `POST /sdk/sessions/{session}/handoff` | `POST /client/verifications/{id}/handoff` |
+| Redeem it on the phone | `POST /verification-handoffs/redeem` | the same |
+
+Creating a link returns `201` (`fixtures/handoff.json`):
+
+```json
+{ "data": { "handoff_url": "{hosted}/verify/handoff#token={64 hex}", "expires_at": "ISO-8601" } }
+```
+
+- Show `handoff_url` as a QR code with `handoff.title` and `handoff.body` (`{minutes}` is the whole minutes until `expires_at`). When `expires_at` passes, show `handoff.expired` and offer `handoff.new_code`, which creates a new link. Never log the link.
+- The token is in the URL fragment, so it never reaches a server log. The hosted page reads it, removes it from the address bar and sends `{"token": "..."}` to the redeem route.
+- Redeeming returns `201` with a session descriptor (`session_id`, `token`, `api_base_url`, `expires_at`; `fixtures/handoff-redeem.json`) for the same case, environment and outstanding requirements. The page then uses the session routes.
+- A token works once, for ten minutes, and the new session ends no later than the session that created the link. A used, expired or unknown token, or one whose session was revoked, returns `401` (`fixtures/handoff-redeem-used.json`): show `handoff.link_invalid`. A closed case returns `409`.
+- The device that created the link keeps its own session. After the applicant finishes on the phone, re-fetch the session (see After a submit) to show the receipt.
 
 ## Questionnaire
 

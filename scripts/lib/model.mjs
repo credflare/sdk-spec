@@ -229,6 +229,8 @@ export function buildModel(spec) {
     members: [
       { name: 'requested_by', type: 'String', value: str(spec.rejections.requested_by) },
       { name: 'help', type: 'String', value: str(spec.rejections.help) },
+      { name: 'help_email', type: 'String', value: str(spec.rejections.help_email) },
+      { name: 'help_url', type: 'String', value: str(spec.rejections.help_url) },
       { name: 'actions', type: { list: 'String' }, value: list('String', Object.keys(spec.rejections.actions).map(str)) },
       {
         name: 'action_labels',

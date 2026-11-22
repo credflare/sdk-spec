@@ -2,6 +2,8 @@
   "version": 1,
   "requested_by": "rejection.requested_by",
   "help": "rejection.help",
+  "help_email": "rejection.help_email",
+  "help_url": "rejection.help_url",
   "actions": {
     "retry": {
       "label": "rejection.action.retry",
@@ -21,7 +23,7 @@
     },
     "wait": {
       "label": "rejection.action.wait",
-      "meaning": "Keep the code screen and enable sending a new code at resend_available_at from the last code request"
+      "meaning": "Keep the code screen and enable sending a new code at resend_available_at from the rejection, or from the last code request when the rejection has none"
     },
     "leave": {
       "label": "rejection.action.leave",

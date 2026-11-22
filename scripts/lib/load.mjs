@@ -103,7 +103,7 @@ export function validateErrors(errors) {
 export function validateRejections(rejections, errors, strings) {
   const problems = [];
   const has = (key) => Object.hasOwn(strings, key);
-  for (const field of ['requested_by', 'help']) {
+  for (const field of ['requested_by', 'help', 'help_email', 'help_url']) {
     if (!has(rejections[field])) problems.push(`rejections ${field}: copy key ${rejections[field]} does not exist`);
   }
   const actions = rejections.actions ?? {};

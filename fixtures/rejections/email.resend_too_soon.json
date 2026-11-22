@@ -2,5 +2,6 @@
     "success": false,
     "message": "Wait a minute before asking for another code.",
     "errors": [],
-    "code": "email.resend_too_soon"
+    "code": "email.resend_too_soon",
+    "resend_available_at": "2026-11-22T00:58:23.000000Z"
 }

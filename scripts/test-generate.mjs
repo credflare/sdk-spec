@@ -110,6 +110,7 @@ test('rejection validation catches missing copy, unknown actions and code drift'
   assert.match(problems, /location.stale: message copy key x.missing does not exist/);
   assert.match(problems, /location.mock: unknown action dance/);
   assert.match(problems, /same order/);
+  assert.match(problems, /help_email: copy key undefined does not exist/);
 });
 
 test('contact code fixtures match the contact code rules', () => {
