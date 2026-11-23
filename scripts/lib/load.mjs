@@ -86,16 +86,39 @@ function validateSpec(spec) {
   return problems;
 }
 
-const ERROR_CODE = /^(location|liveness)\.[a-z][a-z_]*$/;
+const ERROR_CODE = /^(location|liveness|email|phone)\.[a-z][a-z_]*$/;
 
 export function validateErrors(errors) {
   const problems = [];
   const codes = Object.entries(errors?.codes ?? {});
   if (!codes.length) problems.push('errors has no codes');
   for (const [code, meaning] of codes) {
-    if (!ERROR_CODE.test(code)) problems.push(`errors ${code}: code must be location.* or liveness.* in snake_case`);
+    if (!ERROR_CODE.test(code)) problems.push(`errors ${code}: code must be location.*, liveness.*, email.* or phone.* in snake_case`);
     if (typeof meaning !== 'string' || !meaning.trim()) problems.push(`errors ${code}: meaning must be a non empty string`);
     else if (/[–—]| - |--/.test(meaning)) problems.push(`errors ${code}: meaning contains a dash used as punctuation`);
+  }
+  return problems;
+}
+
+export function validateRejections(rejections, errors, strings) {
+  const problems = [];
+  const has = (key) => Object.hasOwn(strings, key);
+  for (const field of ['requested_by', 'help', 'help_email', 'help_url']) {
+    if (!has(rejections[field])) problems.push(`rejections ${field}: copy key ${rejections[field]} does not exist`);
+  }
+  const actions = rejections.actions ?? {};
+  for (const [name, action] of Object.entries(actions)) {
+    if (!has(action.label)) problems.push(`rejections action ${name}: copy key ${action.label} does not exist`);
+  }
+  const want = Object.keys(errors.codes ?? {});
+  const got = Object.keys(rejections.codes ?? {});
+  if (want.join() !== got.join()) problems.push(`rejections must list the codes of spec/errors.json in the same order`);
+  for (const [code, entry] of Object.entries(rejections.codes ?? {})) {
+    if (!(entry.action in actions)) problems.push(`rejections ${code}: unknown action ${entry.action}`);
+    for (const field of ['title', 'message', 'place_message_within', 'place_message_outside']) {
+      if (field in entry && !has(entry[field])) problems.push(`rejections ${code}: ${field} copy key ${entry[field]} does not exist`);
+    }
+    if (!entry.title || !entry.message) problems.push(`rejections ${code}: title and message are required`);
   }
   return problems;
 }
@@ -149,6 +172,8 @@ export function loadSpec(root) {
   const settings = json('spec/settings.json');
   const tokens = json('spec/tokens.json');
   const errors = json('spec/errors.json');
+  const requirements = json('spec/requirements.json');
+  const rejections = json('spec/rejections.json');
   const copy = {};
   for (const file of readdirSync(join(root, 'spec/copy')).filter((f) => f.endsWith('.json')).sort()) {
     const data = json(`spec/copy/${file}`);
@@ -163,10 +188,11 @@ export function loadSpec(root) {
     inputs.push([`icons/${file}`, text]);
     icons[name] = parseIcon(name, text);
   }
-  const spec = { version: pkg.version, liveness, location, settings, tokens, errors, copy, icons };
+  const spec = { version: pkg.version, liveness, location, settings, tokens, errors, requirements, rejections, copy, icons };
   const problems = [
     ...validateSpec(spec),
     ...validateErrors(errors),
+    ...validateRejections(rejections, errors, copy.en.strings),
     ...Object.values(copy).flatMap((c) => validateCopy(c, copy.en).map((p) => `spec/copy/${c.locale}.json ${p}`)),
   ];
   if (problems.length) throw new Error(`Spec is invalid:\n  ${problems.join('\n  ')}`);
