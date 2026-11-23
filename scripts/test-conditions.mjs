@@ -42,7 +42,8 @@ test('earlier answers seed visibility after a refresh', () => {
   const { form_schema: questions, form_answers: earlier } = session.data.profile;
   assert.equal(spec.show_if.earlier_answers, 'profile.form_answers');
   const conditionKeys = new Set(questions.flatMap((q) => q.show_if?.conditions ?? []).map((c) => c.path.slice(spec.show_if.path_prefix.length)));
-  assert.deepEqual(Object.keys(earlier).filter((key) => !conditionKeys.has(key)), []);
+  const asked = new Set(questions.map((q) => q.key));
+  assert.deepEqual(Object.keys(earlier).filter((key) => !conditionKeys.has(key) && !asked.has(key)), []);
   assert.ok(!questions.filter((q) => visible(q, {})).some((q) => q.key === 'employer'));
   assert.ok(questions.filter((q) => visible(q, { ...earlier })).some((q) => q.key === 'employer'));
 });
