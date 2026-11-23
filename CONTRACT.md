@@ -227,6 +227,9 @@ Creating a link returns `201` (`fixtures/handoff.json`):
 
 Submit the answers with `{"type": "form_submission", "fields": {"<key>": value}}` on the session `submit` route. An empty answer (`null`, `""` or `[]`) skips the type check. A required question that is shown and left empty fails with `422`.
 
+- `fields` may be `{}` when every shown question is optional and the applicant leaves them all empty. The submit is accepted and those questions leave `form_schema`, the same as when an optional answer is given. Leaving out `fields` or sending `null` fails with `422` and `errors.fields`.
+- To clear an earlier answer to a question that is asked again, send its key with `null`. The new value replaces the earlier one; leaving the key out keeps the earlier answer.
+
 ### show_if
 
 ```json
