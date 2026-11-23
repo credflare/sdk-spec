@@ -11,7 +11,7 @@ Email and phone requirements carry `"settings": null`.
 ```json
 { "verification_type": "facial_verification",
   "settings": { "gestures": ["blink", "smile", "turn_left", "turn_right", "nod"], "gesture_count": 3,
-                "record_video": true, "video_retention_days": 30 } }
+                "record_video": true } }
 { "verification_type": "location_verification",
   "settings": { "max_accuracy_m": 100, "max_age_s": 60, "mock_location": "reject", "ip_country": "flag" } }
 ```
