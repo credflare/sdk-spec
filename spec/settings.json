@@ -28,13 +28,6 @@
     "record_video": {
       "type": "bool",
       "default": true
-    },
-    "video_retention_days": {
-      "type": "int",
-      "optional": true,
-      "min": 1,
-      "max": 3650,
-      "default": null
     }
   },
   "location_verification": {

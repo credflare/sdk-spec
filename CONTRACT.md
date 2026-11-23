@@ -8,12 +8,10 @@ This is the shared definition that the backend, the web applicant page and all f
 
 Email and phone requirements carry `"settings": null`.
 
-`video_retention_days` is `null` unless the profile hides videos from reviewers after that many days. Hiding does not change what the applicant is asked for, so SDKs only pass it through.
-
 ```json
 { "verification_type": "facial_verification",
   "settings": { "gestures": ["blink", "smile", "turn_left", "turn_right", "nod"], "gesture_count": 3,
-                "record_video": true, "video_retention_days": null } }
+                "record_video": true } }
 { "verification_type": "location_verification",
   "settings": { "max_accuracy_m": 100, "max_age_s": 60, "mock_location": "reject", "ip_country": "flag" } }
 ```
