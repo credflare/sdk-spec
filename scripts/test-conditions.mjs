@@ -36,3 +36,13 @@ test('visibility uses only questions that are still shown', () => {
   assert.ok(shown({ sources: ['Salary', 'Other'] }).includes('sources_other'));
   assert.ok(!shown({}).includes('sources_other'));
 });
+
+test('earlier answers seed visibility after a refresh', () => {
+  const session = JSON.parse(readFileSync(join(ROOT, 'fixtures/questionnaire-earlier-answers-session.json'), 'utf8'));
+  const { form_schema: questions, form_answers: earlier } = session.data.profile;
+  assert.equal(spec.show_if.earlier_answers, 'profile.form_answers');
+  const conditionKeys = new Set(questions.flatMap((q) => q.show_if?.conditions ?? []).map((c) => c.path.slice(spec.show_if.path_prefix.length)));
+  assert.deepEqual(Object.keys(earlier).filter((key) => !conditionKeys.has(key)), []);
+  assert.ok(!questions.filter((q) => visible(q, {})).some((q) => q.key === 'employer'));
+  assert.ok(questions.filter((q) => visible(q, { ...earlier })).some((q) => q.key === 'employer'));
+});

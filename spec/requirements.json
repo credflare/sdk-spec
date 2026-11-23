@@ -61,6 +61,7 @@
     "default_match": "all",
     "max_conditions": 10,
     "path_prefix": "form.",
+    "earlier_answers": "profile.form_answers",
     "operators": [
       "equals",
       "not_equals",

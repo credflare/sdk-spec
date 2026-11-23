@@ -236,6 +236,7 @@ Submit the answers with `{"type": "form_submission", "fields": {"<key>": value}}
 - `path` is `form.<key>` of a question asked earlier in the list.
 - A question with no `show_if`, or with no conditions, is always shown.
 - Evaluate against every answer given so far, including answers sent earlier in the case. A hidden question is not required. Do not send an answer for a hidden question: the server rejects it with `422` and `errors.fields.<key>` (`fixtures/questionnaire-hidden-answer.json`).
+- `profile.form_answers` holds the earlier answers of the case that a `show_if` of an outstanding question reads, keyed by question key, and is `{}` when there are none. It never holds other answers. Seed the answer map with it before evaluating `show_if`, so a question revealed by an earlier answer is shown after a refresh (`fixtures/questionnaire-earlier-answers-session.json`). Do not send those keys again unless the applicant is asked them again; a key also listed in `form_schema` is asked again, and the earlier answer is its starting value.
 
 An answer is **missing** when its key is absent or its value is `null`. Missing answers make every operator false except `is_empty`, which is true. The negated operators are false too: `not_equals`, `not_contains` and `not_in` never match a missing answer.
 
