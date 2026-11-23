@@ -6,6 +6,7 @@ export const OPERATORS = ['equals', 'not_equals', 'gt', 'gte', 'lt', 'lte', 'con
 const DATE = /^\d{4}-\d{2}-\d{2}([T ][0-9:.]+(Z|[+-]\d{2}:?\d{2})?)?$/;
 const NUMERIC = /^[ \t\n\r\v\f]*[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?[ \t\n\r\v\f]*$/;
 const MAX_PATTERN = 200;
+export const FUZZY_LENGTH = 200;
 
 const isList = (v) => Array.isArray(v);
 const isMap = (v) => v !== null && typeof v === 'object';
@@ -115,7 +116,7 @@ export function similarity(a, b) {
 
 function fuzzy(actual, expected) {
   if (!isScalar(actual) || !isMap(expected) || isList(expected) || !isScalar(expected.text)) return false;
-  const normalize = (v) => text(v).toLowerCase().trim().replace(/\s+/g, ' ');
+  const normalize = (v) => Array.from(text(v).toLowerCase().trim().replace(/\s+/g, ' ')).slice(0, FUZZY_LENGTH).join('');
   return similarity(normalize(actual), normalize(expected.text)) >= Number(expected.min_score ?? 80);
 }
 

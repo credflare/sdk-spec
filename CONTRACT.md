@@ -256,7 +256,7 @@ An answer is **missing** when its key is absent or its value is `null`. Missing 
 | `is_empty` | None | The answer is missing, `""` or `[]`. `false` and `0` are not empty. |
 | `is_not_empty` | None | `is_empty` is false |
 | `regex` | A pattern of at most 200 characters | The answer is not a list and the pattern matches part of it, case sensitive, with Unicode on. An invalid pattern is false. |
-| `fuzzy_match` | `{"text": "...", "min_score": 0 to 100}` | Both are lower cased, trimmed and have runs of whitespace collapsed, and their similarity is at least `min_score` (80 when absent). Similarity is twice the length of the common substrings (the longest common run, then recursively the parts on each side of it) divided by the total length, as a percentage, counted in UTF-8 bytes. |
+| `fuzzy_match` | `{"text": "...", "min_score": 0 to 100}` | Both are lower cased, trimmed, have runs of whitespace collapsed and are then cut to their first 200 characters (Unicode code points), and their similarity is at least `min_score` (80 when absent). Similarity is twice the length of the common substrings (the longest common run, then recursively the parts on each side of it) divided by the total length, as a percentage, counted in UTF-8 bytes. |
 
 `scripts/conditions.mjs` is the reference evaluator. `fixtures/show-if-cases.json` holds the server's result for each case; every SDK should replay it in its unit tests.
 
