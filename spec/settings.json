@@ -31,9 +31,10 @@
     },
     "video_retention_days": {
       "type": "int",
+      "optional": true,
       "min": 1,
-      "max": 365,
-      "default": 30
+      "max": 3650,
+      "default": null
     }
   },
   "location_verification": {
