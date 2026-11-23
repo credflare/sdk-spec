@@ -186,6 +186,7 @@ Confirm with `{"code": "123456"}` (`code_length` digits). The `201` response (`f
 - `not_configured` means the requirement cannot be finished in this environment; the SDK shows the rejection screen with the `leave` action.
 - A `resend_too_soon` rejection carries `resend_available_at` next to `code` (`fixtures/rejections/email.resend_too_soon.json`). Count down to it before enabling the resend button again.
 - Asking for a code to a different address or number is refused with `resend_too_soon` while the code sent to the earlier one is still inside its resend wait. Show `email.change_after` or `phone.change_after` with the countdown to `resend_available_at`, then allow the new destination.
+- A `resend_too_soon` rejection also carries `destination`, the masked address or number the waiting code was sent to, with that code's `expires_at` and `sends_remaining`. Show this `destination` on the code entry, even when the SDK lost its own record of the earlier send after a reload or a lost response, so the applicant knows which code to enter.
 
 ## Continue on a phone
 
